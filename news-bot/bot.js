@@ -3,20 +3,26 @@
 
 const { ActivityHandler } = require('botbuilder');
 
-class EmptyBot extends ActivityHandler {
+class MyBot extends ActivityHandler {
     constructor() {
         super();
-        this.onMembersAdded(async (context, next) => {
-            const membersAdded = context.activity.membersAdded;
-            for (let cnt = 0; cnt < membersAdded.length; ++cnt) {
-                if (membersAdded[cnt].id !== context.activity.recipient.id) {
-                    await context.sendActivity('Hello world!');
-                }
-            }
-            // By calling next() you ensure that the next BotHandler is run.
-            await next();
-        });
+    }
+    
+    async onTurn(turnContext){
+        const text = turnContext.activity.text;
+        // Get News
+        if (/^get news.*/i.test(text)) {
+            // Retrieve the news
+        } else if (/^add.*/i.test(text)) {
+            // Add a category
+        } else if (/^remove.*/i.test(text)) {
+            // Remove a category
+        } else if (/^clear categories/i.test(text)) {
+            // Clear all categories
+        } else {
+            // Do nothing
+        }
     }
 }
 
-module.exports.EmptyBot = EmptyBot;
+module.exports.MyBot = MyBot;
