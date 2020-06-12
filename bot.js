@@ -1,12 +1,47 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
 
-const { ActivityHandler } = require('botbuilder');
+const { ActivityTypes, ActivityHandler } = require('botbuilder');
+const CognitiveServicesCredentials = require('ms-rest-azure').CognitiveServicesCredentials;
+const NewsSearchAPIClient = require('azure-cognitiveservices-newssearch');
+
+let credentials = new CognitiveServicesCredentials('63d3cc2339944d6ba9150f53e4415870');
+let client = new NewsSearchAPIClient(credentials);
+
+// Non-exhaustie list of valid en-gb categories
+const availableCategories = ['Business', 'Entertainment', 'Health', 'Politics', 'ScienceAndTechnology', 'Sports', 'UK', 'World'];
+
 
 class MyBot extends ActivityHandler {
     constructor() {
         super();
+        this.categories = [];
     }
+
+    addCategory(category) {
+        if (availableCategories.includes(category) && !this.categories.includes(category)) {
+          this.categories = [...this.categories, category];
+          return "I've added that category for you.";
+        } else if (this.categories.includes(category)) {
+          return "You're already using that category.";
+        } else {
+          return availableCategories.reduce((acc, cur) => {
+            return acc + '`' + cur + '`\n\n';
+          }, "I don't recognise that category, the availables options are:\n\n");
+        }
+      }
+    
+      removeCategory(category) {
+        if (this.categories.includes(category)) {
+          this.categories = this.categories.filter(c => c !== category);
+          return "I've removed that category for you.";
+        } else {
+          return "That category isn't in your categories.";
+        }
+      }
+    
+      clearCategories() {
+        this.categories = [];
+        return "I've cleared the categories for you.";
+      }
     
     async onTurn(turnContext){
         const text = turnContext.activity.text;

@@ -16,7 +16,9 @@
         "url": "https://github.com"
     },
     "dependencies": {
+        "azure-cognitiveservices-newssearch": "^2.0.0",
         "botbuilder": "~4.9.0",
+        "ms-rest-azure": "^3.0.0",
         "restify": "~8.5.1"
     },
     "devDependencies": {
