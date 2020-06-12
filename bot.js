@@ -6,8 +6,8 @@ const NewsSearchAPIClient = require('azure-cognitiveservices-newssearch');
 let credentials = new CognitiveServicesCredentials('63d3cc2339944d6ba9150f53e4415870');
 let client = new NewsSearchAPIClient(credentials);
 
-// Non-exhaustie list of valid en-gb categories
-const availableCategories = ['Business', 'Entertainment', 'Health', 'Politics', 'ScienceAndTechnology', 'Sports', 'UK', 'World'];
+// Non-exhaustie list of valid en-CA categories
+const availableCategories = ['Business', 'Canada', 'Entertainment', 'LifeStyle', 'Politics', 'ScienceAndTechnology', 'Sports', 'World'];
 
 
 class MyBot extends ActivityHandler {
@@ -42,6 +42,58 @@ class MyBot extends ActivityHandler {
         this.categories = [];
         return "I've cleared the categories for you.";
       }
+
+      async getNews() {
+        const replies = ['Here are some of the latest headlines!'];
+        let articles = [];
+        const count = this.categories.length > 2 ? 2 : 5;
+    
+        try {
+          for (const category of this.categories) {
+            await client.newsOperations
+              .category({
+                market: 'en-CA',
+                category,
+                count,
+              })
+              .then(newsItems => articles = [...articles, ...newsItems.value])
+              .catch(console.error);
+          }
+          return articles.reduce((acc, cur) => {
+            const reply = { type: ActivityTypes.Message };
+            reply.attachments = this.getInternetAttachment(cur.image.thumbnail.contentUrl) ? [this.getInternetAttachment(cur.image.thumbnail.contentUrl)] : [];
+            reply.text = `From ${ cur.provider[0].name }\n\n${ cur.description }\n\n${ cur.url }`;
+            return [...acc, reply];
+          }, replies);
+        } catch (err) {
+          console.error(err);
+          return "Oh no! An error occured!"
+        }
+    }
+    
+    getInternetAttachment(url) {
+      if (!/.*\/(\w*).(\w*)$/i.test(url)) {
+        return;
+      }
+    
+      const [, name, extension] = /.*\/(\w*).(\w*)$/i.exec(url);
+    
+      if (!['jpg', 'png'].includes(extension)) {
+    
+      } else if (extension === 'jpg' || extension === 'jpeg') {
+        return {
+          name: `${ name }.${ extension }`,
+          contentType: 'image/jpg',
+          contentUrl: url
+        };
+      } else if (extension === 'png') {
+        return {
+          name: `${ name }.${ extension }`,
+          contentType: 'image/png',
+          contentUrl: url
+        };
+      }
+    }
     
     async onTurn(turnContext){
         const text = turnContext.activity.text;
