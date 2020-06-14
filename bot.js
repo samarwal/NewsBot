@@ -3,7 +3,7 @@ const { ActivityTypes, ActivityHandler } = require('botbuilder');
 const CognitiveServicesCredentials = require('ms-rest-azure').CognitiveServicesCredentials;
 const NewsSearchAPIClient = require('azure-cognitiveservices-newssearch');
 
-let credentials = new CognitiveServicesCredentials('63d3cc2339944d6ba9150f53e4415870');
+let credentials = new CognitiveServicesCredentials('41ee2cba1aca46f5aab8e8b74165d556');
 let client = new NewsSearchAPIClient(credentials);
 
 // Non-exhaustie list of valid en-CA categories
