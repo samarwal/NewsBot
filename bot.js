@@ -95,25 +95,37 @@ class MyBot extends ActivityHandler {
       }
     }
     
-    async onTurn(turnContext){
+    async onTurn(turnContext) {
         const text = turnContext.activity.text;
         // Get News
         if (/^get news.*/i.test(text)) {
-            // Retrieve the news
-            await turnContext.sendActivity("I'll get the news for you");
-        } else if (/^add.*/i.test(text)) {
-            // Add a category
-            await turnContext.sendActivity("Thanks I've added that to your list of approved categories");
+          // Retrieve the news
+          const messages = await this.getNews();
+      
+          for (const message of messages) {
+            await turnContext.sendActivity(message);
+          }
+        } else if (/^add(.*)/i.test(text)) {
+          // Add a category
+          const [, category] = /^add (.*)/i.exec(text);
+      
+          await turnContext.sendActivity(this.addCategory(category));
         } else if (/^remove.*/i.test(text)) {
-            // Remove a category
-            await turnContext.sendActivity("Thanks I've removed that from your list of approved categories");
-        } else if (/^clear categories/i.test(text)) {
-            // Clear all categories
-            await turnContext.sendActivity("I've cleared all the categories for you");
+          // Remove a category
+          const [, category] = /^remove (.*)/i.exec(text);
+      
+          await turnContext.sendActivity(this.removeCategory(category));
+        } else if (/^clear categories$/i.test(text)) {
+          // Clear all categories
+          await turnContext.sendActivity(this.clearCategories());
+        } else if (/^help$/i.test(text)) {
+          // Help text
+          await turnContext.sendActivity('You can ask me for the news with `get news`\n\nAdd and remove categories with `add [category]` and remove [category]`\n\nClear categories with `clear categories`');
         } else {
-            // Do nothing
+          // Do nothing
         }
-    }
+      }
+      
 }
 
 module.exports.MyBot = MyBot;
